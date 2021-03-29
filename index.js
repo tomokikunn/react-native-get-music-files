@@ -27,7 +27,7 @@
  * @property {string} id
  */
 
-import { NativeModules, Platform } from "react-native";
+import { NativeModules, Platform } from 'react-native';
 
 const { RNAndroidStore } = NativeModules;
 
@@ -58,17 +58,17 @@ const RNAndroidAudioStore = {
    */
   getAll(options) {
     return new Promise((resolve, reject) => {
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         RNAndroidStore.getAll(
           options,
           tracks => {
             resolve(tracks);
           },
           error => {
-            resolve(error);
-          }
+            reject(error);
+          },
         );
-      } 
+      }
     });
   },
 
@@ -87,7 +87,7 @@ const RNAndroidAudioStore = {
    */
   getSongByPath(options) {
     return new Promise((resolve, reject) => {
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         RNAndroidStore.getSongByPath(
           options,
           tracks => {
@@ -95,9 +95,10 @@ const RNAndroidAudioStore = {
           },
           error => {
             resolve(error);
-          }
+          },
         );
-    }});
+      }
+    });
   },
 
   /**
@@ -110,7 +111,7 @@ const RNAndroidAudioStore = {
 
   getAlbums(options = {}) {
     return new Promise((resolve, reject) => {
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         RNAndroidStore.getAlbums(
           options,
           albums => {
@@ -118,7 +119,7 @@ const RNAndroidAudioStore = {
           },
           error => {
             resolve(error);
-          }
+          },
         );
       }
     });
@@ -133,17 +134,17 @@ const RNAndroidAudioStore = {
 
   getArtists(options = {}) {
     return new Promise((resolve, reject) => {
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         RNAndroidStore.getArtists(
           options,
           albums => {
             resolve(albums);
           },
           error => {
-            resolve(error);
-          }
+            reject(error);
+          },
         );
-      } 
+      }
     });
   },
 
@@ -157,17 +158,17 @@ const RNAndroidAudioStore = {
    */
   getSongs(options = {}) {
     return new Promise((resolve, reject) => {
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         RNAndroidStore.getSong(
           options,
           albums => {
             resolve(albums);
           },
           error => {
-            resolve(error);
-          }
+            reject(error);
+          },
         );
-      } 
+      }
     });
   },
 
@@ -180,17 +181,17 @@ const RNAndroidAudioStore = {
    */
   search(options = {}) {
     return new Promise((resolve, reject) => {
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         RNAndroidStore.search(
           options,
           results => {
             resolve(results);
           },
           error => {
-            resolve(error);
-          }
+            reject(error);
+          },
         );
-      } 
+      }
     });
   },
 
@@ -202,21 +203,19 @@ const RNAndroidAudioStore = {
    */
   getSongsByGenres(options = {}) {
     return new Promise((resolve, reject) => {
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         RNAndroidStore.getGenres(
           options,
           results => {
             resolve(results);
           },
           error => {
-            resolve(error);
-          }
+            reject(error);
+          },
         );
-      } 
+      }
     });
-  }
+  },
 };
 
-
-
-export default RNAndroidAudioStore
+export default RNAndroidAudioStore;
