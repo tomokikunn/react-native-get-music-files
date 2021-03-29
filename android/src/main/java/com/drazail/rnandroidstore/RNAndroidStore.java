@@ -578,172 +578,175 @@ public class RNAndroidStore extends ReactContextBaseJavaModule {
         String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
         Cursor musicCursor = musicResolver.query(musicUri, projection, selection, null, sortOrder);
 
-        // Log.i("Tienes => ",Integer.toString(musicCursor.getCount()));
+        Log.i("Music cursor count",Integer.toString(musicCursor.getCount()));
 
         int pointer = 0;
         int mapSize = 0;
         if (musicCursor != null) {
+            Log.i("RNAndroidStore", "No Music Files found");
             sendEvent(reactContext, "NoMusicFilesFound", null);
-        }
 
-        if (musicCursor != null && musicCursor.moveToFirst()) {
+            if (musicCursor.moveToFirst()) {
+                Log.i("RNAndroidStore", "Music Cursor is not null");
+                if (musicCursor.getCount() > 0) {
 
-            if (musicCursor.getCount() > 0) {
+                    WritableArray jsonArray = new WritableNativeArray();
+                    WritableMap items;
 
-                WritableArray jsonArray = new WritableNativeArray();
-                WritableMap items;
+                    // FFmpegMediaMetadataRetriever mmr = new FFmpegMediaMetadataRetriever();
+                    MediaMetadataRetriever mmr = new MediaMetadataRetriever();
 
-                // FFmpegMediaMetadataRetriever mmr = new FFmpegMediaMetadataRetriever();
-                MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                    int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
 
-                int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
+                    try {
+                        do {
+                            try {
+                                items = new WritableNativeMap();
 
-                try {
-                    do {
-                        try {
-                            items = new WritableNativeMap();
+                                long songId = musicCursor.getLong(idColumn);
 
-                            long songId = musicCursor.getLong(idColumn);
-
-                            if (getIDFromSong) {
-                                String str = musicCursor.getString(5);
-                                items.putString("id", str);
-                            }
-
-                            String songPath = musicCursor.getString(4);
-                            // MP3File mp3file = new MP3File(songPath);
-
-                            Log.e("musica", songPath);
-
-                            if (songPath != null && songPath != "") {
-
-                                String fileName = songPath.substring(songPath.lastIndexOf("/") + 1);
-
-                                // by default, always return path and fileName
-                                items.putString("path", songPath);
-                                items.putString("fileName", fileName);
-
-                                // String songTimeDuration =
-                                // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION);
-                                String songTimeDuration = musicCursor.getString(3);
-                                int songIntDuration = Integer.parseInt(songTimeDuration);
-
-                                if (getAlbumFromSong) {
-                                    String songAlbum = musicCursor.getString(2);
-
-                                    // String songAlbum =
-                                    // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
-                                    items.putString("album", songAlbum);
+                                if (getIDFromSong) {
+                                    String str = musicCursor.getString(5);
+                                    items.putString("id", str);
                                 }
 
-                                if (getArtistFromSong) {
-                                    String songArtist = musicCursor.getString(1);
-                                    // String songArtist =
-                                    // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
-                                    items.putString("author", songArtist);
-                                }
+                                String songPath = musicCursor.getString(4);
+                                // MP3File mp3file = new MP3File(songPath);
 
-                                if (getTitleFromSong) {
-                                    String songTitle = musicCursor.getString(0);
-                                    // String songTitle =
-                                    // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_TITLE);
-                                    items.putString("title", songTitle);
-                                }
+                                Log.e("musica", songPath);
 
-                                if (getGenreFromSong) {
-                                    String songGenre = mmr.extractMetadata(mmr.METADATA_KEY_GENRE);
-                                    // String songGenre =
-                                    // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_GENRE);
-                                    items.putString("genre", songGenre);
-                                }
+                                if (songPath != null && songPath != "") {
 
-                                if (getDurationFromSong) {
-                                    items.putString("duration", songTimeDuration);
-                                }
+                                    String fileName = songPath.substring(songPath.lastIndexOf("/") + 1);
 
-                                /*
-                                 * if (getCommentsFromSong) { items.putString("comments",
-                                 * mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_COMMENT)); }
-                                 * 
-                                 * if (getDateFromSong) { items.putString("date",
-                                 * mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DATE)); }
-                                 * 
-                                 * if (getLyricsFromSong) { //String lyrics =
-                                 * mp3file.getID3v2Tag().getSongLyric(); //items.putString("lyrics", lyrics); }
-                                 */
+                                    // by default, always return path and fileName
+                                    items.putString("path", songPath);
+                                    items.putString("fileName", fileName);
 
-                                if (getCoversFromSongs) {
-                                    getCoverByPath(coversFolder, coversResizeRatio, getIcons,
-                                            iconsSize, coversSize, songPath, songId, items);
+                                    // String songTimeDuration =
+                                    // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION);
+                                    String songTimeDuration = musicCursor.getString(3);
+                                    int songIntDuration = Integer.parseInt(songTimeDuration);
 
-                                }
+                                    if (getAlbumFromSong) {
+                                        String songAlbum = musicCursor.getString(2);
 
-                                jsonArray.pushMap(items);
-                                mapSize++;
-                                if (songsPerIteration > 0) {
-
-                                    if (songsPerIteration > musicCursor.getCount()) {
-
-                                        if (pointer == (musicCursor.getCount() - 1)) {
-                                            WritableMap params = Arguments.createMap();
-                                            params.putArray("batch", jsonArray);
-                                            sendEvent(reactContext, "onBatchReceived", params);
-                                            sendEvent(reactContext, "onLastBatchReceived", null);
-                                        }
-                                    } else {
-
-                                        if (songsPerIteration == mapSize) {
-                                            WritableMap params = Arguments.createMap();
-                                            params.putArray("batch", jsonArray);
-                                            sendEvent(reactContext, "onBatchReceived", params);
-                                            jsonArray = new WritableNativeArray();
-                                            mapSize = 0;
-                                            Thread.sleep(delay);
-                                        } else if (pointer == (musicCursor.getCount() - 1)) {
-                                            WritableMap params = Arguments.createMap();
-                                            params.putArray("batch", jsonArray);
-                                            sendEvent(reactContext, "onBatchReceived", params);
-                                            sendEvent(reactContext, "onLastBatchReceived", null);
-                                        }
+                                        // String songAlbum =
+                                        // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
+                                        items.putString("album", songAlbum);
                                     }
-                                    pointer++;
+
+                                    if (getArtistFromSong) {
+                                        String songArtist = musicCursor.getString(1);
+                                        // String songArtist =
+                                        // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
+                                        items.putString("author", songArtist);
+                                    }
+
+                                    if (getTitleFromSong) {
+                                        String songTitle = musicCursor.getString(0);
+                                        // String songTitle =
+                                        // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_TITLE);
+                                        items.putString("title", songTitle);
+                                    }
+
+                                    if (getGenreFromSong) {
+                                        String songGenre = mmr.extractMetadata(mmr.METADATA_KEY_GENRE);
+                                        // String songGenre =
+                                        // mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_GENRE);
+                                        items.putString("genre", songGenre);
+                                    }
+
+                                    if (getDurationFromSong) {
+                                        items.putString("duration", songTimeDuration);
+                                    }
+
+                                    /*
+                                    * if (getCommentsFromSong) { items.putString("comments",
+                                    * mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_COMMENT)); }
+                                    * 
+                                    * if (getDateFromSong) { items.putString("date",
+                                    * mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DATE)); }
+                                    * 
+                                    * if (getLyricsFromSong) { //String lyrics =
+                                    * mp3file.getID3v2Tag().getSongLyric(); //items.putString("lyrics", lyrics); }
+                                    */
+
+                                    if (getCoversFromSongs) {
+                                        getCoverByPath(coversFolder, coversResizeRatio, getIcons,
+                                                iconsSize, coversSize, songPath, songId, items);
+
+                                    }
+
+                                    jsonArray.pushMap(items);
+                                    mapSize++;
+                                    if (songsPerIteration > 0) {
+
+                                        if (songsPerIteration > musicCursor.getCount()) {
+
+                                            if (pointer == (musicCursor.getCount() - 1)) {
+                                                WritableMap params = Arguments.createMap();
+                                                params.putArray("batch", jsonArray);
+                                                sendEvent(reactContext, "onBatchReceived", params);
+                                                sendEvent(reactContext, "onLastBatchReceived", null);
+                                            }
+                                        } else {
+
+                                            if (songsPerIteration == mapSize) {
+                                                WritableMap params = Arguments.createMap();
+                                                params.putArray("batch", jsonArray);
+                                                sendEvent(reactContext, "onBatchReceived", params);
+                                                jsonArray = new WritableNativeArray();
+                                                mapSize = 0;
+                                                Thread.sleep(delay);
+                                            } else if (pointer == (musicCursor.getCount() - 1)) {
+                                                WritableMap params = Arguments.createMap();
+                                                params.putArray("batch", jsonArray);
+                                                sendEvent(reactContext, "onBatchReceived", params);
+                                                sendEvent(reactContext, "onLastBatchReceived", null);
+                                            }
+                                        }
+                                        pointer++;
+                                    }
                                 }
+
+                            } catch (Exception e) {
+                                // An error in one message should not prevent from getting the rest
+                                // There are cases when a corrupted file can't be read and a RuntimeException is
+                                // raised
+
+                                // Let's discuss how to deal with these kind of exceptions
+                                // This song will be ignored, and incremented the pointer in order to this
+                                // plugin work
+                                pointer++;
+
+                                continue; // This is redundant, but adds meaning
                             }
 
-                        } catch (Exception e) {
-                            // An error in one message should not prevent from getting the rest
-                            // There are cases when a corrupted file can't be read and a RuntimeException is
-                            // raised
+                        } while (musicCursor.moveToNext());
 
-                            // Let's discuss how to deal with these kind of exceptions
-                            // This song will be ignored, and incremented the pointer in order to this
-                            // plugin work
-                            pointer++;
-
-                            continue; // This is redundant, but adds meaning
+                        if (songsPerIteration == 0) {
+                            successCallback.invoke(jsonArray);
                         }
 
-                    } while (musicCursor.moveToNext());
-
-                    if (songsPerIteration == 0) {
-                        successCallback.invoke(jsonArray);
+                    } catch (RuntimeException e) {
+                        errorCallback.invoke(e.toString());
+                    } catch (Exception e) {
+                        errorCallback.invoke(e.getMessage());
+                    } finally {
+                        mmr.release();
                     }
-
-                } catch (RuntimeException e) {
-                    errorCallback.invoke(e.toString());
-                } catch (Exception e) {
-                    errorCallback.invoke(e.getMessage());
-                } finally {
-                    mmr.release();
+                } else {
+                    Log.i("RNAndroidStore", "Error, you dont' have any songs");
+                    successCallback.invoke("Error, you dont' have any songs");
                 }
             } else {
-                Log.i("com.tests", "Error, you dont' have any songs");
-                successCallback.invoke("Error, you dont' have any songs");
+                Log.i("RNAndroidStore", "Something went wrong with musicCursor");
+                errorCallback.invoke("Something went wrong with musicCursor");
             }
-        } else {
-            Log.i("com.tests", "Something get wrong with musicCursor");
-            errorCallback.invoke("Something get wrong with musicCursor");
+            musicCursor.close();
         }
+
     }
 
     public void getCoverByPath(String coverFolder, Double coverResizeRatio, Boolean getIcon,
