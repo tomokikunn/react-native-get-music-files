@@ -16,7 +16,7 @@
     "native"
   ],
   "license": "IST",
-  "name": "react-native-get-music-files",
+  "name": "@YajanaRao/react-native-get-music-files",
   "homepage": "https://github.com/YajanaRao/react-native-get-music-files#readme",
   "react-native": "index.js",
   "scripts": {
