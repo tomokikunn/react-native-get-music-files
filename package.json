@@ -1,8 +1,5 @@
 {
-  "author": {
-    "name": "YajanaRao"
-  },
-  "bundleDependencies": false,
+  "author": "YajanaRao",
   "deprecated": false,
   "description": "React Native package to get music files from local and sd for iOS and Android ",
   "keywords": [
@@ -15,12 +12,23 @@
     "react",
     "native"
   ],
-  "license": "IST",
-  "name": "@YajanaRao/react-native-get-music-files",
+  "license": "ISC",
+  "name": "@yajanarao/react-native-get-music-files",
   "homepage": "https://github.com/YajanaRao/react-native-get-music-files#readme",
   "react-native": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" "
   },
-  "version": "2.1.0"
+  "version": "2.1.0",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YajanaRao/react-native-get-music-files.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YajanaRao/react-native-get-music-files/issues"
+  }
 }
