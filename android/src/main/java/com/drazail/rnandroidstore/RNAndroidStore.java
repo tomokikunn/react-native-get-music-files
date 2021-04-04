@@ -587,10 +587,9 @@ public class RNAndroidStore extends ReactContextBaseJavaModule {
             sendEvent(reactContext, "NoMusicFilesFound", null);
 
             if (musicCursor.moveToFirst()) {
-                Log.i("RNAndroidStore", "Music Cursor is not null");
+                WritableArray jsonArray = new WritableNativeArray();
                 if (musicCursor.getCount() > 0) {
 
-                    WritableArray jsonArray = new WritableNativeArray();
                     WritableMap items;
 
                     // FFmpegMediaMetadataRetriever mmr = new FFmpegMediaMetadataRetriever();
@@ -738,7 +737,7 @@ public class RNAndroidStore extends ReactContextBaseJavaModule {
                     }
                 } else {
                     Log.i("RNAndroidStore", "Error, you dont' have any songs");
-                    successCallback.invoke("Error, you dont' have any songs");
+                    successCallback.invoke(jsonArray);
                 }
             } else {
                 Log.i("RNAndroidStore", "Something went wrong with musicCursor");
